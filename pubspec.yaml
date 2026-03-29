@@ -35,7 +35,11 @@ dependencies:
   shared_preferences: ^2.2.2
   wakelock_plus: ^1.1.4
   flutter_foreground_task: ^6.1.1
-
+  flutter_map: ^6.1.0
+  latlong2: ^0.9.1
+  http: ^1.1.0
+  geolocator: ^10.1.0
+  flutter_map_animations: ^0.5.0 # Optional: for smooth map movements
 dev_dependencies:
   flutter_test:
     sdk: flutter
