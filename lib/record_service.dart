@@ -16,12 +16,11 @@ class RecordService {
         String path = "";
         if (!kIsWeb) {
           final dir = await getExternalStorageDirectory();
-          path = '${dir!.path}/GuardianX_Audio_${DateFormat('HHmmss').format(DateTime.now())}.m4a';
+          path = '${dir!.path}/SOS_Audio_${DateFormat('HHmmss').format(DateTime.now())}.m4a';
         }
         await _recorder.start(const RecordConfig(encoder: AudioEncoder.aacLc), path: path);
-        print("Mic Recording: ON");
       }
     } catch (e) {}
   }
-  Future<void> stopLocalRecord() async { await _recorder.stop(); }
+  Future<void> stopLocalRecord() async => await _recorder.stop();
 }

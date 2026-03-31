@@ -14,7 +14,7 @@ class VideoRecordService {
     if (kIsWeb) return;
     try {
       final dir = await getExternalStorageDirectory();
-      final String path = '${dir!.path}/GuardianX_Video_${DateFormat('HHmmss').format(DateTime.now())}.mp4';
+      final String path = '${dir!.path}/SOS_Video_${DateFormat('HHmmss').format(DateTime.now())}.mp4';
       _mediaRecorder = MediaRecorder();
       await _mediaRecorder!.start(path, videoTrack: stream.getVideoTracks().first);
     } catch (e) {}
