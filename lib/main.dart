@@ -9,7 +9,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'navigation_screen.dart'; // Add this line
 // Service Imports
 import 'sos_model.dart';
 import 'camera_service.dart';
@@ -109,7 +109,7 @@ class _MainNavigationState extends State<MainNavigation> {
   Widget build(BuildContext context) {
     final List<Widget> screens = [
       HomeScreen(levels: myLevels, contacts: myContacts),
-      const MapViewScreen(),
+      const NavigationScreen(),
       GuardianScreen(contacts: myContacts, onUpdate: (l) => setState(() => myContacts = l)),
       ConfigScreen(levels: myLevels, onUpdate: (l) => setState(() => myLevels = l)),
       const Scaffold(body: Center(child: Text("AI Analysis"))),
@@ -203,4 +203,3 @@ class _ConfigState extends State<ConfigScreen> with SingleTickerProviderStateMix
 class VaultScreen extends StatelessWidget { const VaultScreen({super.key}); Future<List<FileSystemEntity>> _getFiles() async { final dir = await getExternalStorageDirectory(); return dir?.listSync() ?? []; } @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text("Evidence Vault")), body: FutureBuilder<List<FileSystemEntity>>(future: _getFiles(), builder: (context, snapshot) { if (!snapshot.hasData) return const CircularProgressIndicator(); final files = snapshot.data!.reversed.toList(); return ListView.builder(itemCount: files.length, itemBuilder: (context, i) { String name = files[i].path.split('/').last; return ListTile(leading: Icon(name.contains('.mp4') ? Icons.videocam : Icons.mic), title: Text(name), subtitle: const Text("Saved on device")); }); })); }
 class GuardianScreen extends StatelessWidget { final List<EmergencyContact> contacts; final Function onUpdate; const GuardianScreen({super.key, required this.contacts, required this.onUpdate}); void _add(BuildContext context) { final n = TextEditingController(), p = TextEditingController(); showDialog(context: context, builder: (c) => AlertDialog(title: const Text("Add Guardian"), content: Column(mainAxisSize: MainAxisSize.min, children: [TextField(controller: n, decoration: const InputDecoration(labelText: "Name")), TextField(controller: p, decoration: const InputDecoration(labelText: "Phone"))]), actions: [ElevatedButton(onPressed: () { contacts.add(EmergencyContact(id: "1", name: n.text, number: p.text)); onUpdate(contacts); Navigator.pop(c); }, child: const Text("Save"))])); } @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text("Guardians"), actions: [IconButton(icon: const Icon(Icons.add), onPressed: () => _add(context))]), body: ListView.builder(itemCount: contacts.length, itemBuilder: (c, i) => ListTile(title: Text(contacts[i].name), subtitle: Text(contacts[i].number)))); }
 class ViewerEntryTab extends StatelessWidget { final IO.Socket socket; const ViewerEntryTab({super.key, required this.socket}); @override Widget build(BuildContext context) { final c = TextEditingController(); return Padding(padding: const EdgeInsets.all(30), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [const Icon(Icons.live_tv, size: 80, color: Colors.redAccent), TextField(controller: c, decoration: const InputDecoration(labelText: "Code")), ElevatedButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (x) => ViewerScreen(socket: socket, roomCode: c.text))), child: const Text("WATCH"))])); } }
-class MapViewScreen extends StatelessWidget { const MapViewScreen({super.key}); void _openRadar(String q) async { await launchUrl(Uri.parse("https://www.google.com/maps/search/$q"), mode: LaunchMode.externalApplication); } @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text("Safety Navigator")), body: GridView.count(crossAxisCount: 2, children: [IconButton(icon: const Icon(Icons.local_police, color: Colors.blue, size: 50), onPressed: () => _openRadar("police")), IconButton(icon: const Icon(Icons.local_hospital, color: Colors.red, size: 50), onPressed: () => _openRadar("hospital"))])); }
