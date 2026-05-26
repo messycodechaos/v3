@@ -65,21 +65,179 @@ class GuardianXApp extends StatelessWidget {
 }
 
 // --- 1. SPLASH SCREEN (PULSING) ---
+// --- THE ELITE MASTER LEVEL CINEMATIC SPLASH SCREEN ---
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
-  @override State<SplashScreen> createState() => _SplashState();
-}
-class _SplashState extends State<SplashScreen> with SingleTickerProviderStateMixin {
-  late AnimationController _anim;
-  @override void initState() {
-    super.initState();
-    _anim = AnimationController(duration: const Duration(seconds: 1), vsync: this)..repeat(reverse: true);
-    Timer(const Duration(seconds: 3), () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) => const AuthScreen())));
-  }
-  @override void dispose() { _anim.dispose(); super.dispose(); }
-  @override Widget build(BuildContext context) => Scaffold(body: Center(child: ScaleTransition(scale: Tween(begin: 0.9, end: 1.1).animate(_anim), child: const Icon(Icons.shield, size: 100, color: Colors.redAccent))));
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
+class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
+  late AnimationController _zoomController;
+  late Animation<double> _zoomAnimation;
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // 1. Setup Cinematic Zoom (Ken Burns Effect)
+    _zoomController = AnimationController(
+      duration: const Duration(seconds: 10),
+      vsync: this,
+    )..forward();
+
+    _zoomAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(
+      CurvedAnimation(parent: _zoomController, curve: Curves.linear),
+    );
+
+    // 2. Setup Smooth Text Fade
+    _fadeController = AnimationController(
+      duration: const Duration(seconds: 3),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeIn),
+    );
+
+    _fadeController.forward();
+
+    // 3. Auto-Navigate after 6 seconds (to enjoy the art)
+    Timer(const Duration(seconds: 6), () {
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const AuthScreen()),
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _zoomController.dispose();
+    _fadeController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // The Elite Image Link provided
+    const String eliteImageUrl = "https://chatgpt.com/backend-api/estuary/content?id=file_000000001df07208b91858653e847675&ts=494381&p=fs&cid=1&sig=6728f8a7c1a06dccc5ff9559d0b9726ecd35086db0d736ff7eba2c9e8c043060&v=0";
+
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          // 1. THE ZOOMING BACKGROUND ARTWORK
+          ScaleTransition(
+            scale: _zoomAnimation,
+            child: Image.network(
+              eliteImageUrl,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(color: Colors.black),
+            ),
+          ),
+
+          // 2. PROTECTIVE VIGNETTE (Darkens edges to focus on center)
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black.withOpacity(0.4),
+                  Colors.transparent,
+                  Colors.transparent,
+                  Colors.black.withOpacity(0.95),
+                ],
+                stops: const [0.0, 0.3, 0.7, 1.0],
+              ),
+            ),
+          ),
+
+          // 3. OVERLAY ENERGY GLOW (Bottom area)
+          Positioned(
+            bottom: -50,
+            left: -50,
+            right: -50,
+            child: Container(
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.cyanAccent.withOpacity(0.15),
+                    blurRadius: 100,
+                    spreadRadius: 50,
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // 4. THE BRANDING & SYSTEM STATUS
+          FadeTransition(
+            opacity: _fadeAnimation,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                // Ultra-Modern Title
+                Text(
+                  "GUARDIAN X",
+                  style: TextStyle(
+                    fontSize: 52,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 18,
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(color: Colors.cyanAccent.withOpacity(0.7), blurRadius: 25),
+                      const Shadow(color: Colors.black, offset: Offset(4, 4), blurRadius: 10),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  "ENCRYPTED SAFETY PROTOCOL v3.0",
+                  style: TextStyle(
+                    fontSize: 9,
+                    letterSpacing: 6,
+                    color: Colors.cyanAccent.withOpacity(0.9),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 100),
+
+                // Minimalist Energy Bar
+                Container(
+                  width: 180,
+                  height: 1,
+                  child: const LinearProgressIndicator(
+                    backgroundColor: Colors.white10,
+                    color: Colors.cyanAccent,
+                  ),
+                ),
+                const SizedBox(height: 15),
+                const Text(
+                  "ESTABLISHING SECURE CLOUD LINK",
+                  style: TextStyle(
+                    color: Colors.white30,
+                    fontSize: 7,
+                    letterSpacing: 3,
+                  ),
+                ),
+                const SizedBox(height: 60),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 // --- 2. LOGIN PAGE (PASSWORD ADDED) ---
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
