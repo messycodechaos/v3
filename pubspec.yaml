@@ -30,8 +30,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  background_sms: ^0.0.1
-
+#  background_sms: ^0.0.1
+  email_otp: ^2.0.1
+  share_plus: ^10.1.0
   geolocator: ^10.1.0
   url_launcher: ^6.3.0
   socket_io_client: ^2.0.3
